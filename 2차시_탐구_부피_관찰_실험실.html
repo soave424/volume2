@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>2차시 탐구 활동 · 부피 관찰 실험실</title><style>
+:root{--primary:#028090;--primary-dark:#05363D;--seafoam:#00A896;--mint:#02C39A;--ink:#1D2D35;--muted:#5F7078;--card:#EAF6F6;--line:#CBE7E7;--accent:#F96167;--accent-soft:#FDE8E9;--gold:#F9A826;--gold-soft:#FEF3DC;--ok:#0E9F6E;--ok-soft:#E3F5EE}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif;background:#F4FAFA;color:var(--ink);line-height:1.6}
+header{background:var(--primary-dark);color:#fff;padding:20px 18px;text-align:center}
+header .unit{color:var(--mint);font-size:13px;font-weight:700}
+header h1{font-size:clamp(18px,4vw,25px);margin-top:6px}
+header .tag{display:inline-block;background:var(--accent);color:#fff;border-radius:999px;font-size:12px;font-weight:800;padding:3px 12px;margin-top:8px}
+main{max-width:760px;margin:0 auto;padding:20px 16px 60px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin-bottom:14px}
+.panel h3{font-size:16px;color:var(--primary);margin-bottom:12px}
+.q{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.q .qt{font-size:15px;font-weight:600;margin-bottom:10px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+input[type=number],select{border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;font-size:15px;width:130px;background:#fff}
+select{width:auto}
+input:focus,select:focus{outline:2px solid var(--seafoam);border-color:var(--seafoam)}
+.unit-label{color:var(--muted);font-size:14px;font-weight:700}
+button.check{background:var(--primary);color:#fff;border:0;border-radius:10px;padding:9px 18px;font-size:14px;font-weight:800;cursor:pointer}
+button.check:hover{background:#026b78}
+button.ghost{background:#fff;color:var(--primary);border:1.5px solid var(--primary);border-radius:10px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer}
+button.pick{background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:8px 14px;font-size:14px;cursor:pointer}
+button.pick:hover{border-color:var(--seafoam)}
+.fb{margin-top:10px;border-radius:10px;padding:10px 14px;font-size:14px;display:none}
+.fb.ok{display:block;background:var(--ok-soft);color:var(--ok);font-weight:700}
+.fb.no{display:block;background:var(--accent-soft);color:#B33A3F;font-weight:700}
+.hint{color:var(--muted);font-size:13px;margin-top:6px}
+.scorebar{display:flex;justify-content:space-between;background:var(--gold-soft);border:1px solid #F2D9A6;border-radius:12px;padding:10px 16px;margin-bottom:14px;font-size:14px;font-weight:700;color:#8A6116}
+.viz{display:flex;justify-content:center;padding:8px 0}
+table.simple{width:100%;border-collapse:collapse;font-size:14px}
+table.simple th,table.simple td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left}
+table.simple th{color:var(--muted);font-weight:700;font-size:13px}
+.big{font-size:19px;font-weight:800;color:var(--primary)}
+.slider-row{display:grid;grid-template-columns:60px 1fr 42px;gap:10px;align-items:center;margin-bottom:8px;font-size:14px;font-weight:700}
+input[type=range]{accent-color:var(--primary);width:100%}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:16px}
+</style></head>
+<body>
+<header><div class="unit">초등 수학 6-1 · 6단원 직육면체의 부피와 겉넓이 · 2차시</div>
+<h1>부피 관찰 실험실</h1><span class="tag">탐구 활동</span></header>
+<main>
+
+<div class="panel"><h3>가로·세로·높이를 바꾸면 부피가 어떻게 변할까요?</h3>
+<div class="slider-row"><span>가로</span><input type="range" min="1" max="12" value="6" id="a" oninput="draw()"><span id="av">6</span></div>
+<div class="slider-row"><span>세로</span><input type="range" min="1" max="12" value="4" id="b" oninput="draw()"><span id="bv">4</span></div>
+<div class="slider-row"><span>높이</span><input type="range" min="1" max="12" value="5" id="c" oninput="draw()"><span id="cv">5</span></div>
+<div class="viz" id="viz"></div>
+<p style="text-align:center" class="big" id="vol"></p>
+<p class="hint" style="text-align:center">🔍 미션: ① 가로만 2배로 늘이면 부피는? ② 세 길이를 각각 2배로 늘이면 부피는 몇 배? 관찰한 것을 공책에 써 보세요.</p></div>
+</main>
+<footer>다 풀었으면 선생님께 화면을 보여 주세요! 😊</footer>
+<script>
+const state={score:0,done:{}};
+let TOTAL=0;
+function fb(el,ok,msg){el.className="fb "+(ok?"ok":"no");el.innerHTML=(ok?"⭕ 정답이에요! ":"❌ 다시 생각해 보세요. ")+(msg||"");}
+function mark(qid,ok){if(ok&&!state.done[qid]){state.done[qid]=true;state.score++;const el=document.getElementById("score");if(el)el.textContent=state.score+" / "+TOTAL+" 문제 해결!";}}
+function numCheck(qid,inputId,answer,fbId,msg,tol){const v=parseFloat(document.getElementById(inputId).value);const ok=!isNaN(v)&&Math.abs(v-answer)<=(tol||0.0001);fb(document.getElementById(fbId),ok,ok?msg:"");mark(qid,ok);}
+function oxCheck(qid,fbId,pickedOk,msg){fb(document.getElementById(fbId),pickedOk,pickedOk?msg:"");mark(qid,pickedOk);}
+function selCheck(qid,selIds,answers,fbId,msg){const ok=selIds.every((id,i)=>document.getElementById(id).value===answers[i]);fb(document.getElementById(fbId),ok,ok?msg:"");mark(qid,ok);}
+const V=(a,b,c)=>a*b*c, SA=(a,b,c)=>2*(a*b+b*c+a*c);
+function boxSVG(a,b,c,scale){const s=scale||(150/Math.max(a,b,c,1));const ax=a*s,by=b*s*0.5,cz=c*s;const x0=52,y0=by+10,W=x0+ax+by+78,H=cz+by+40;const p=(x,y)=>x.toFixed(1)+","+y.toFixed(1);
+const front=p(x0,y0)+" "+p(x0+ax,y0)+" "+p(x0+ax,y0+cz)+" "+p(x0,y0+cz);
+const top=p(x0,y0)+" "+p(x0+by,y0-by)+" "+p(x0+ax+by,y0-by)+" "+p(x0+ax,y0);
+const side=p(x0+ax,y0)+" "+p(x0+ax+by,y0-by)+" "+p(x0+ax+by,y0-by+cz)+" "+p(x0+ax,y0+cz);
+return '<svg width="'+W+'" height="'+(H+10)+'" viewBox="0 0 '+W+' '+(H+10)+'">'
++'<polygon points="'+top+'" fill="#02C39A" stroke="#fff" stroke-width="2"/>'
++'<polygon points="'+side+'" fill="#028090" stroke="#fff" stroke-width="2"/>'
++'<polygon points="'+front+'" fill="#00A896" stroke="#fff" stroke-width="2"/>'
++'<text x="'+(x0+ax/2)+'" y="'+(y0+cz+18)+'" font-size="13" text-anchor="middle" fill="#5F7078">가로 '+a+'</text>'
++'<text x="'+(x0+ax+by/2+8)+'" y="'+(y0+cz-by/2+2)+'" font-size="13" fill="#5F7078">세로 '+b+'</text>'
++'<text x="'+(x0-8)+'" y="'+(y0+cz/2)+'" font-size="13" text-anchor="end" fill="#5F7078">높이 '+c+'</text></svg>';}
+
+TOTAL=0;
+function draw(){const a=+document.getElementById("a").value,b=+document.getElementById("b").value,c=+document.getElementById("c").value;
+document.getElementById("av").textContent=a;document.getElementById("bv").textContent=b;document.getElementById("cv").textContent=c;
+document.getElementById("viz").innerHTML=boxSVG(a,b,c,16);
+document.getElementById("vol").innerHTML="부피 = "+a+" × "+b+" × "+c+" = <span style='color:var(--accent)'>"+V(a,b,c)+"cm³</span>";}
+draw();
+</script></body></html>
